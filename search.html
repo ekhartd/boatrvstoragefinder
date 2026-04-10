@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Search RV &amp; Boat Storage — StorageFinder</title>
+  <meta name="description" content="Search and filter RV and boat storage facilities by location, price, and amenities across the United States." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <!-- Leaflet.js for map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+
+<!-- ===== NAV ===== -->
+<nav class="navbar">
+  <div class="container">
+    <a href="index.html" class="nav-logo">
+      <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="32" height="32" rx="8" fill="rgba(255,255,255,0.15)"/>
+        <path d="M8 20 L16 10 L24 20 L22 20 L16 13 L10 20 Z" fill="#e8a020"/>
+        <rect x="13" y="20" width="6" height="4" rx="1" fill="white"/>
+        <path d="M6 24 Q16 19 26 24" stroke="#e8a020" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      </svg>
+      Storage<span class="accent">Finder</span>
+    </a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="search.html" class="active">Browse Listings</a>
+      <a href="submit.html">Add a Listing</a>
+      <a href="index.html#about">About</a>
+    </div>
+    <a href="submit.html" class="btn btn-accent btn-sm nav-cta">List Your Facility</a>
+  </div>
+</nav>
+
+<!-- ===== SEARCH HEADER ===== -->
+<div class="search-header">
+  <div class="container">
+    <div class="search-bar-row">
+      <div class="search-field">
+        <label>City, State, or Keyword</label>
+        <input type="text" id="searchQuery" placeholder="e.g. Austin, TX or &quot;covered storage&quot;" />
+      </div>
+      <div class="search-field">
+        <label>Storage Type</label>
+        <select id="searchType">
+          <option value="all">RV &amp; Boat</option>
+          <option value="rv">RV Only</option>
+          <option value="boat">Boat Only</option>
+        </select>
+      </div>
+      <div class="search-field">
+        <label>State</label>
+        <select id="searchState">
+          <option value="">All States</option>
+        </select>
+      </div>
+      <button class="btn btn-accent" onclick="applySearch()">🔍 Search</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MAIN CONTENT ===== -->
+<main>
+  <div class="container">
+    <div class="search-layout">
+
+      <!-- FILTERS SIDEBAR -->
+      <aside class="filters-panel">
+        <h3>Filters <button onclick="clearFilters()">Clear all</button></h3>
+
+        <div class="filter-group">
+          <h4>Storage Type</h4>
+          <div class="filter-option"><input type="radio" name="typeFilter" id="typeAll" value="all" checked /><label for="typeAll">All Types</label></div>
+          <div class="filter-option"><input type="radio" name="typeFilter" id="typeRv" value="rv" /><label for="typeRv">RV Storage</label></div>
+          <div class="filter-option"><input type="radio" name="typeFilter" id="typeBoat" value="boat" /><label for="typeBoat">Boat Storage</label></div>
+        </div>
+
+        <div class="filter-group">
+          <h4>Price Range (per month)</h4>
+          <div class="range-inputs">
+            <input type="number" id="minPrice" placeholder="Min $" min="0" />
+            <input type="number" id="maxPrice" placeholder="Max $" min="0" />
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <h4>Amenities</h4>
+          <div class="filter-option"><input type="checkbox" id="am-gate" value="Gated Access" /><label for="am-gate">Gated Access</label></div>
+          <div class="filter-option"><input type="checkbox" id="am-covered" value="Covered Units" /><label for="am-covered">Covered Units</label></div>
+          <div class="filter-option"><input type="checkbox" id="am-elec" value="Electric Hookups" /><label for="am-elec">Electric Hookups</label></div>
+          <div class="filter-option"><input type="checkbox" id="am-dump" value="Dump Station" /><label for="am-dump">Dump Station</label></div>
+          <div class="filter-option"><input type="checkbox" id="am-247" value="24/7 Security" /><label for="am-247">24/7 Security</label></div>
+          <div class="filter-option"><input type="checkbox" id="am-cam" value="Security Cameras" /><label for="am-cam">Security Cameras</label></div>
+          <div class="filter-option"><input type="checkbox" id="am-heated" value="Heated Units" /><label for="am-heated">Heated/Indoor</label></div>
+          <div class="filter-option"><input type="checkbox" id="am-mgr" value="On-site Manager" /><label for="am-mgr">On-site Manager</label></div>
+        </div>
+
+        <div class="filter-group">
+          <h4>Minimum Rating</h4>
+          <select id="minRating" style="width:100%;height:38px;border:1.5px solid var(--border);border-radius:var(--radius);padding:0 10px;font-size:14px;color:var(--text);background:var(--white);outline:none;">
+            <option value="0">Any Rating</option>
+            <option value="4">4+ Stars</option>
+            <option value="4.5">4.5+ Stars</option>
+          </select>
+        </div>
+
+        <button class="btn btn-primary btn-block" onclick="applyFilters()">Apply Filters</button>
+      </aside>
+
+      <!-- RESULTS PANEL -->
+      <div class="results-panel">
+        <div class="results-toolbar">
+          <div class="results-count" id="resultsCount">Showing <strong>0</strong> facilities</div>
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+            <select class="sort-select" id="sortSelect" onchange="applyFilters()">
+              <option value="featured">Sort: Featured</option>
+              <option value="price-asc">Price: Low to High</option>
+              <option value="price-desc">Price: High to Low</option>
+              <option value="rating">Highest Rated</option>
+            </select>
+            <div class="view-toggle">
+              <button id="btnList" class="active" onclick="setView('list')" title="List view">☰</button>
+              <button id="btnMap" onclick="setView('map')" title="Map view">🗺</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live data status banner -->
+        <div id="osmBanner" style="display:none;align-items:center;gap:10px;background:#f0faf4;border:1px solid #a7d9b8;border-radius:var(--radius);padding:10px 16px;margin-bottom:16px;font-size:13px;color:#1a5c34;">
+          <span id="osmBannerIcon">🔄</span>
+          <span id="osmBannerText">Searching OpenStreetMap for live listings…</span>
+        </div>
+
+        <!-- Map View -->
+        <div id="map-view"></div>
+
+        <!-- List View -->
+        <div class="list-view cards-grid" id="resultsList"></div>
+
+        <!-- Pagination -->
+        <div class="pagination" id="pagination"></div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" class="nav-logo" style="display:inline-flex;">Storage<span class="accent">Finder</span></a>
+        <p class="mt-2">The largest directory of RV and boat storage facilities in the United States.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Find Storage</h4>
+        <a href="search.html?type=rv">RV Storage</a>
+        <a href="search.html?type=boat">Boat Storage</a>
+        <a href="search.html">All Listings</a>
+      </div>
+      <div class="footer-col">
+        <h4>For Owners</h4>
+        <a href="submit.html">Add a Listing</a>
+        <a href="#">Manage Listing</a>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a href="index.html#about">About Us</a>
+        <a href="#">Contact</a>
+        <a href="#">Privacy Policy</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 StorageFinder. All rights reserved.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="js/listings.js"></script>
+<script src="js/google-places.js"></script>
+<script>
+  /* === Init state dropdowns === */
+  const searchState = document.getElementById('searchState');
+  US_STATES.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s; opt.textContent = s;
+    searchState.appendChild(opt);
+  });
+
+  /* === Read URL params on load === */
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('q'))     document.getElementById('searchQuery').value = urlParams.get('q');
+  if (urlParams.get('type'))  document.getElementById('searchType').value = urlParams.get('type');
+  if (urlParams.get('state')) searchState.value = urlParams.get('state');
+  if (urlParams.get('type') && urlParams.get('type') !== 'all') {
+    const r = document.querySelector(`input[name="typeFilter"][value="${urlParams.get('type')}"]`);
+    if (r) r.checked = true;
+  }
+
+  /* === View toggle === */
+  let currentView = 'list';
+  let map = null;
+
+  function setView(v) {
+    currentView = v;
+    document.getElementById('btnList').classList.toggle('active', v === 'list');
+    document.getElementById('btnMap').classList.toggle('active', v === 'map');
+    document.getElementById('map-view').classList.toggle('active', v === 'map');
+    document.getElementById('resultsList').classList.toggle('hidden', v === 'map');
+    document.getElementById('pagination').style.display = v === 'map' ? 'none' : 'flex';
+    if (v === 'map') initMap();
+  }
+
+  /* === Map (Leaflet) === */
+  function initMap() {
+    if (map) { map.invalidateSize(); return; }
+    map = L.map('map-view').setView([38.5, -97.5], 4);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© <a href="https://openstreetmap.org">OpenStreetMap</a> contributors',
+      maxZoom: 18
+    }).addTo(map);
+    renderMapMarkers(currentResults);
+  }
+
+  function renderMapMarkers(listings) {
+    if (!map) return;
+    map.eachLayer(l => { if (l instanceof L.Marker) map.removeLayer(l); });
+    listings.filter(l => l.lat && l.lng).forEach(l => {
+      const priceStr = l.priceMonthly ? `From $${l.priceMonthly}/mo` : 'Contact for pricing';
+      const link = (l.source === 'osm' || l.source === 'google')
+        ? (l.website ? `<a href="https://${l.website.replace(/^https?:\/\//,'')}" target="_blank" style="color:#1a4f8a;font-weight:600;">Visit Website →</a>` : '')
+        : `<a href="listing.html?id=${l.id}" style="color:#1a4f8a;font-weight:600;">View Details →</a>`;
+      L.marker([l.lat, l.lng]).addTo(map).bindPopup(
+        `<strong>${l.name}</strong><br>${l.city || ''}, ${l.state || ''}<br>${priceStr}<br>${link}`
+      );
+    });
+    const coords = listings.filter(l => l.lat && l.lng).map(l => [l.lat, l.lng]);
+    if (coords.length > 0) map.fitBounds(coords, { padding: [40, 40] });
+  }
+
+  /* === Pagination === */
+  const PER_PAGE = 9;
+  let currentPage = 1;
+  let currentResults = [];
+
+  function renderPage(results, page) {
+    const start = (page - 1) * PER_PAGE;
+    const pageItems = results.slice(start, start + PER_PAGE);
+    document.getElementById('resultsList').innerHTML = pageItems.length
+      ? pageItems.map(buildCard).join('')
+      : '<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--muted);"><div style="font-size:48px;margin-bottom:16px;">🔍</div><p style="font-size:18px;font-weight:600;margin-bottom:8px;">No facilities found</p><p>Try adjusting your filters or search in a different area.</p></div>';
+
+    /* Pagination buttons */
+    const totalPages = Math.ceil(results.length / PER_PAGE);
+    const pg = document.getElementById('pagination');
+    pg.innerHTML = '';
+    if (totalPages <= 1) return;
+    for (let i = 1; i <= totalPages; i++) {
+      const btn = document.createElement('button');
+      btn.className = 'page-btn' + (i === page ? ' active' : '');
+      btn.textContent = i;
+      btn.addEventListener('click', () => {
+        currentPage = i;
+        renderPage(currentResults, currentPage);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+      pg.appendChild(btn);
+    }
+  }
+
+  /* =========================================================
+     OVERPASS API — OpenStreetMap live data
+     ========================================================= */
+
+  let osmResults = [];         // live results from Overpass
+  let osmAbortCtrl = null;     // lets us cancel in-flight requests
+
+  function osmBanner(icon, text) {
+    const b = document.getElementById('osmBanner');
+    b.style.display = 'flex';
+    document.getElementById('osmBannerIcon').textContent = icon;
+    document.getElementById('osmBannerText').textContent = text;
+  }
+  function osmBannerHide() {
+    document.getElementById('osmBanner').style.display = 'none';
+  }
+
+  /* Normalize a raw OSM element into a listing-shaped object */
+  function normalizeOSMElement(el) {
+    const tags = el.tags || {};
+    if (!tags.name) return null;
+
+    const lat = el.lat ?? el.center?.lat;
+    const lng = el.lon ?? el.center?.lon;
+    if (!lat || !lng) return null;
+
+    const nameLow = tags.name.toLowerCase();
+
+    // Determine storage type from name + OSM tag
+    let type = 'both';
+    const isBoat  = nameLow.includes('marina') || nameLow.includes('boat') ||
+                    nameLow.includes('marine') || nameLow.includes('yacht') ||
+                    nameLow.includes('harbor') || nameLow.includes('harbour') ||
+                    el.tags.leisure === 'marina' || el.tags.amenity === 'boat_storage';
+    const isRV    = nameLow.includes('rv') || nameLow.includes('motorhome') ||
+                    nameLow.includes('trailer') || nameLow.includes('camper') ||
+                    nameLow.includes('recreational vehicle');
+    if (isBoat && !isRV)  type = 'boat';
+    if (isRV   && !isBoat) type = 'rv';
+
+    const address = [tags['addr:housenumber'], tags['addr:street']].filter(Boolean).join(' ');
+    const rawSite = tags.website || tags['contact:website'] || tags['url'] || '';
+    const website = rawSite.replace(/^https?:\/\//, '');
+
+    return {
+      id: `osm-${el.type}-${el.id}`,
+      name: tags.name,
+      type,
+      address,
+      city:   tags['addr:city'] || tags['addr:suburb'] || '',
+      state:  tags['addr:state'] || tags['addr:state_code'] || '',
+      zip:    tags['addr:postcode'] || '',
+      phone:  tags.phone || tags['contact:phone'] || '',
+      email:  tags.email || tags['contact:email'] || '',
+      website,
+      rating: 0, reviews: 0, featured: false,
+      lat, lng,
+      priceMonthly: 0,
+      description: tags.description || '',
+      amenities: [],
+      pricing: [],
+      hours: tags.opening_hours || '',
+      source: 'osm',
+    };
+  }
+
+  /* Build the Overpass QL query */
+  function buildOverpassQuery(state, lat, lng, radiusM = 80000) {
+    const rvBoatFilter = '"name"~"rv|boat|marine|marina|yacht|harbor|harbour|trailer|camper|motorhome|recreational vehicle|watercraft",i';
+    const tags = [
+      `node["shop"="storage"][${rvBoatFilter}]`,
+      `way["shop"="storage"][${rvBoatFilter}]`,
+      `node["amenity"="storage"][${rvBoatFilter}]`,
+      `way["amenity"="storage"][${rvBoatFilter}]`,
+      `node["leisure"="marina"]`,
+      `way["leisure"="marina"]`,
+      `node["amenity"="boat_storage"]`,
+      `way["amenity"="boat_storage"]`,
+    ];
+
+    if (state) {
+      const area = `area["ISO3166-2"="US-${state}"]->.s;`;
+      const selectors = tags.map(t => `${t}(area.s);`).join('\n  ');
+      return `[out:json][timeout:30];\n${area}\n(\n  ${selectors}\n);\nout body center;`;
+    } else {
+      const around = `around:${radiusM},${lat},${lng}`;
+      const selectors = tags.map(t => `${t}(${around});`).join('\n  ');
+      return `[out:json][timeout:30];\n(\n  ${selectors}\n);\nout body center;`;
+    }
+  }
+
+  async function fetchOSMData(state, lat, lng) {
+    if (osmAbortCtrl) osmAbortCtrl.abort();
+    osmAbortCtrl = new AbortController();
+
+    osmBanner('🔄', `Searching OpenStreetMap for live listings${state ? ' in ' + state : ''}…`);
+
+    try {
+      const query = buildOverpassQuery(state, lat, lng);
+      const res = await fetch('https://overpass-api.de/api/interpreter', {
+        method: 'POST',
+        body: query,
+        signal: osmAbortCtrl.signal,
+      });
+      if (!res.ok) throw new Error(`Overpass HTTP ${res.status}`);
+      const data = await res.json();
+
+      osmResults = data.elements
+        .map(normalizeOSMElement)
+        .filter(Boolean)
+        // Deduplicate against curated listings by proximity (within ~200m)
+        .filter(osm => !LISTINGS.some(l =>
+          l.lat && Math.abs(l.lat - osm.lat) < 0.002 && Math.abs(l.lng - osm.lng) < 0.002
+        ));
+
+      const count = osmResults.length;
+      if (count > 0) {
+        osmBanner('🗺', `Found ${count} additional location${count === 1 ? '' : 's'} from OpenStreetMap`);
+      } else {
+        osmBanner('ℹ️', 'No additional OpenStreetMap listings found for this area.');
+        setTimeout(osmBannerHide, 3000);
+      }
+    } catch (err) {
+      if (err.name === 'AbortError') return;
+      osmBanner('⚠️', 'Could not reach OpenStreetMap — showing curated results only.');
+      setTimeout(osmBannerHide, 4000);
+      osmResults = [];
+    }
+
+    // Re-render with OSM results merged in
+    renderMergedResults();
+  }
+
+  /* Geocode a city+state string via Nominatim */
+  async function geocodeCity(cityState) {
+    try {
+      const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityState + ', USA')}&format=json&limit=1`;
+      const res = await fetch(url, { headers: { 'Accept-Language': 'en' } });
+      const data = await res.json();
+      if (data.length === 0) return null;
+      return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+    } catch {
+      return null;
+    }
+  }
+
+  /* =========================================================
+     FILTER + RENDER
+     ========================================================= */
+
+  let lastFilterState = {};
+
+  function sortResults(arr, sort) {
+    if (sort === 'price-asc')  return [...arr].sort((a, b) => (a.priceMonthly || 9999) - (b.priceMonthly || 9999));
+    if (sort === 'price-desc') return [...arr].sort((a, b) => (b.priceMonthly || 0) - (a.priceMonthly || 0));
+    if (sort === 'rating')     return [...arr].sort((a, b) => b.rating - a.rating);
+    // Featured first, then OSM
+    return [...arr].sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
+  }
+
+  function renderMergedResults() {
+    const { type, state, minPrice, maxPrice, minRating, amenities, sort } = lastFilterState;
+
+    // Filter OSM results by type
+    let osm = osmResults.filter(l => type === 'all' || l.type === type || l.type === 'both');
+
+    let all = [...filterListings(lastFilterState), ...osm];
+    all = all.filter(l => l.rating >= minRating || l.source === 'osm' || l.source === 'google');
+    all = sortResults(all, sort);
+
+    currentResults = all;
+    currentPage = 1;
+
+    const curatedN = all.filter(l => !l.source || l.source === 'featured').length;
+    const liveN    = all.filter(l => l.source === 'osm' || l.source === 'google').length;
+    let countHtml = `Showing <strong>${all.length}</strong> facilit${all.length === 1 ? 'y' : 'ies'}`;
+    if (liveN > 0) countHtml += ` <span style="font-size:12px;color:var(--muted);">(${curatedN} curated · ${liveN} live)</span>`;
+    document.getElementById('resultsCount').innerHTML = countHtml;
+
+    renderPage(all, 1);
+    if (currentView === 'map') renderMapMarkers(all);
+  }
+
+  /* === Apply all filters === */
+  async function applyFilters() {
+    const query     = document.getElementById('searchQuery').value.trim();
+    const type      = document.querySelector('input[name="typeFilter"]:checked').value;
+    const state     = searchState.value;
+    const minPrice  = parseInt(document.getElementById('minPrice').value) || 0;
+    const maxPrice  = parseInt(document.getElementById('maxPrice').value) || 9999;
+    const minRating = parseFloat(document.getElementById('minRating').value) || 0;
+    const amenities = Array.from(document.querySelectorAll('.filters-panel input[type="checkbox"]:checked')).map(cb => cb.value);
+    const sort      = document.getElementById('sortSelect').value;
+
+    lastFilterState = { query, type, state, minPrice, maxPrice, minRating, amenities, sort };
+
+    // Immediately show curated results
+    osmResults = [];
+    osmBannerHide();
+    renderMergedResults();
+
+    // Kick off live OSM search if there's a meaningful location
+    const locationText = state
+      ? (query || state)
+      : query;
+
+    if (state) {
+      fetchOSMData(state, null, null);
+    } else if (query && query.length > 2) {
+      const coords = await geocodeCity(query);
+      if (coords) fetchOSMData(null, coords.lat, coords.lng);
+    }
+
+    // Kick off Google Places search if configured
+    if (typeof SFGooglePlaces !== 'undefined' && SFGooglePlaces.isConfigured() && locationText) {
+      SFGooglePlaces.search(locationText, type).then(googleListings => {
+        if (!googleListings.length) return;
+        // Merge into osmResults, dedup against existing
+        const existingIds = new Set([...LISTINGS.map(l => l.id), ...osmResults.map(l => l.id)]);
+        const newGoogle = googleListings.filter(l => !existingIds.has(l.id));
+        osmResults = [...osmResults, ...newGoogle];
+        renderMergedResults();
+      }).catch(() => { /* silent fail */ });
+    }
+  }
+
+  function applySearch() {
+    const type = document.getElementById('searchType').value;
+    if (type !== 'all') {
+      const r = document.querySelector(`input[name="typeFilter"][value="${type}"]`);
+      if (r) r.checked = true;
+    }
+    if (searchState.value) {
+      document.getElementById('searchQuery').value = '';
+    }
+    applyFilters();
+  }
+
+  function clearFilters() {
+    document.getElementById('searchQuery').value = '';
+    document.getElementById('searchType').value = 'all';
+    searchState.value = '';
+    document.querySelector('input[name="typeFilter"][value="all"]').checked = true;
+    document.getElementById('minPrice').value = '';
+    document.getElementById('maxPrice').value = '';
+    document.getElementById('minRating').value = '0';
+    document.querySelectorAll('.filters-panel input[type="checkbox"]').forEach(cb => cb.checked = false);
+    osmResults = [];
+    osmBannerHide();
+    applyFilters();
+  }
+
+  /* Enter key on search */
+  document.getElementById('searchQuery').addEventListener('keydown', e => { if (e.key === 'Enter') applySearch(); });
+
+  /* === Initial load === */
+  applyFilters();
+</script>
+</body>
+</html>
