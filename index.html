@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StorageFinder — Find RV &amp; Boat Storage Near You</title>
+  <meta name="description" content="Search thousands of RV and boat storage facilities across the United States. Compare prices, amenities, and read reviews." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+<!-- ===== NAV ===== -->
+<nav class="navbar">
+  <div class="container">
+    <a href="index.html" class="nav-logo">
+      <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="32" height="32" rx="8" fill="rgba(255,255,255,0.15)"/>
+        <path d="M8 20 L16 10 L24 20 L22 20 L16 13 L10 20 Z" fill="#e8a020"/>
+        <rect x="13" y="20" width="6" height="4" rx="1" fill="white"/>
+        <path d="M6 24 Q16 19 26 24" stroke="#e8a020" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      </svg>
+      Storage<span class="accent">Finder</span>
+    </a>
+    <div class="nav-links">
+      <a href="index.html" class="active">Home</a>
+      <a href="search.html">Browse Listings</a>
+      <a href="submit.html">Add a Listing</a>
+      <a href="#about">About</a>
+    </div>
+    <a href="submit.html" class="btn btn-accent btn-sm nav-cta">List Your Facility</a>
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <div class="hero-content">
+    <h1>Find <em>RV &amp; Boat Storage</em><br>Near You</h1>
+    <p>Search thousands of facilities across all 50 states. Compare prices, amenities, and read real reviews.</p>
+
+    <!-- Search Box -->
+    <div class="search-box" id="heroSearch">
+      <div class="search-field" style="position:relative;">
+        <label for="heroLocation">City, State <em style="font-weight:400;text-transform:none;letter-spacing:0;color:#aab;">or ZIP Code</em></label>
+        <input type="text" id="heroLocation" placeholder="e.g. Austin, TX or 78734" maxlength="40" autocomplete="off" />
+        <span id="zipSpinner" style="display:none;position:absolute;right:12px;bottom:10px;font-size:16px;animation:spin .7s linear infinite;">⏳</span>
+        <span id="zipCheck" style="display:none;position:absolute;right:12px;bottom:10px;font-size:16px;color:#2e8b57;">✅</span>
+      </div>
+      <div class="search-field">
+        <label>Storage Type</label>
+        <select id="heroType">
+          <option value="all">RV &amp; Boat</option>
+          <option value="rv">RV Only</option>
+          <option value="boat">Boat Only</option>
+        </select>
+      </div>
+      <div class="search-field">
+        <label>State</label>
+        <select id="heroState">
+          <option value="">All States</option>
+        </select>
+      </div>
+      <button class="btn btn-accent btn-lg" onclick="heroSearch()">🔍 Search</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <span class="num">4,200+</span>
+        <span class="lbl">Facilities Listed</span>
+      </div>
+      <div class="hero-stat">
+        <span class="num">50</span>
+        <span class="lbl">States Covered</span>
+      </div>
+      <div class="hero-stat">
+        <span class="num">180k+</span>
+        <span class="lbl">Storage Spaces</span>
+      </div>
+      <div class="hero-stat">
+        <span class="num">Free</span>
+        <span class="lbl">To Search</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FEATURED LISTINGS ===== -->
+<section>
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Top Picks</span>
+      <h2>Featured Storage Facilities</h2>
+      <p>Hand-picked top-rated facilities with verified amenities and competitive pricing.</p>
+    </div>
+    <div class="cards-grid" id="featuredGrid"></div>
+    <div class="text-center mt-4">
+      <a href="search.html" class="btn btn-outline">View All Listings →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== HOW IT WORKS ===== -->
+<section class="alt-bg" id="about">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Simple Process</span>
+      <h2>How StorageFinder Works</h2>
+      <p>Finding the right storage for your RV or boat takes just minutes.</p>
+    </div>
+    <div class="how-steps">
+      <div class="how-step">
+        <div class="step-icon">🔍</div>
+        <h3>Search Your Area</h3>
+        <p>Enter your city, state, or zip code and filter by storage type, price, and amenities.</p>
+      </div>
+      <div class="how-step">
+        <div class="step-icon">📋</div>
+        <h3>Compare Listings</h3>
+        <p>View detailed profiles with photos, pricing, amenities, hours, and customer reviews.</p>
+      </div>
+      <div class="how-step">
+        <div class="step-icon">🗺️</div>
+        <h3>View on Map</h3>
+        <p>Switch to map view to visualize facilities near your home or launch point.</p>
+      </div>
+      <div class="how-step">
+        <div class="step-icon">📞</div>
+        <h3>Contact &amp; Reserve</h3>
+        <p>Reach out directly to the facility to check availability and lock in your spot.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== BROWSE BY TYPE ===== -->
+<section>
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Browse by Category</span>
+      <h2>What Are You Storing?</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:760px;margin:0 auto;">
+      <a href="search.html?type=rv" class="listing-card" style="text-decoration:none;text-align:center;padding:40px 24px;">
+        <div style="font-size:56px;margin-bottom:16px;">🚐</div>
+        <h3 style="font-size:20px;font-weight:800;color:var(--primary);margin-bottom:8px;">RV Storage</h3>
+        <p style="color:var(--muted);font-size:14px;">Class A, B, C motorhomes, 5th wheels, travel trailers &amp; toy haulers</p>
+        <div class="btn btn-primary mt-3" style="display:inline-flex;">Find RV Storage →</div>
+      </a>
+      <a href="search.html?type=boat" class="listing-card" style="text-decoration:none;text-align:center;padding:40px 24px;">
+        <div style="font-size:56px;margin-bottom:16px;">⛵</div>
+        <h3 style="font-size:20px;font-weight:800;color:var(--primary);margin-bottom:8px;">Boat Storage</h3>
+        <p style="color:var(--muted);font-size:14px;">Powerboats, sailboats, personal watercraft, pontoons &amp; fishing boats</p>
+        <div class="btn btn-primary mt-3" style="display:inline-flex;">Find Boat Storage →</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CTA BANNER ===== -->
+<section class="cta-banner">
+  <div class="container">
+    <h2>Own a Storage Facility?</h2>
+    <p>Add your listing for free and get discovered by thousands of RV and boat owners searching in your area.</p>
+    <a href="submit.html" class="btn btn-accent btn-lg">List Your Facility — It's Free</a>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" class="nav-logo" style="display:inline-flex;">
+          Storage<span class="accent">Finder</span>
+        </a>
+        <p class="mt-2">The largest directory of RV and boat storage facilities in the United States. Free to search, free to list.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Find Storage</h4>
+        <a href="search.html?type=rv">RV Storage</a>
+        <a href="search.html?type=boat">Boat Storage</a>
+        <a href="search.html">All Listings</a>
+        <a href="search.html">Browse by State</a>
+      </div>
+      <div class="footer-col">
+        <h4>For Owners</h4>
+        <a href="submit.html">Add a Listing</a>
+        <a href="#">Manage Listing</a>
+        <a href="#">Advertise</a>
+        <a href="#">Partner With Us</a>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a href="#about">About Us</a>
+        <a href="#">Contact</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 StorageFinder. All rights reserved.</span>
+      <span>Made with ❤️ for the RV &amp; boating community</span>
+    </div>
+  </div>
+</footer>
+
+<script src="js/listings.js"></script>
+<script>
+  /* Populate state dropdown */
+  const heroState = document.getElementById('heroState');
+  US_STATES.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s; opt.textContent = s;
+    heroState.appendChild(opt);
+  });
+
+  /* Featured listings */
+  const featured = LISTINGS.filter(l => l.featured);
+  document.getElementById('featuredGrid').innerHTML = featured.map(buildCard).join('');
+
+  /* Hero search */
+  function heroSearch() {
+    const loc = document.getElementById('heroLocation').value;
+    const type = document.getElementById('heroType').value;
+    const state = document.getElementById('heroState').value;
+    const params = new URLSearchParams();
+    if (loc) params.set('q', loc);
+    if (type !== 'all') params.set('type', type);
+    if (state) params.set('state', state);
+    window.location.href = 'search.html?' + params.toString();
+  }
+
+  document.getElementById('heroLocation').addEventListener('keydown', e => {
+    if (e.key === 'Enter') heroSearch();
+  });
+
+  /* === ZIP Code auto-resolve === */
+  let zipDebounce = null;
+
+  document.getElementById('heroLocation').addEventListener('input', function () {
+    const val = this.value.trim();
+    clearTimeout(zipDebounce);
+    hideZipFeedback();
+
+    // Only trigger on exactly 5 digits
+    if (!/^\d{5}$/.test(val)) return;
+
+    zipDebounce = setTimeout(() => resolveZip(val), 300);
+  });
+
+  function showZipSpinner(show) {
+    document.getElementById('zipSpinner').style.display = show ? 'inline' : 'none';
+  }
+  function showZipCheck(show) {
+    document.getElementById('zipCheck').style.display = show ? 'inline' : 'none';
+  }
+  function hideZipFeedback() {
+    showZipSpinner(false);
+    showZipCheck(false);
+  }
+
+  async function resolveZip(zip) {
+    showZipSpinner(true);
+    try {
+      const res = await fetch(`https://api.zippopotam.us/us/${zip}`);
+      if (!res.ok) throw new Error('Not found');
+      const data = await res.json();
+
+      const city  = data.places[0]['place name'];
+      const state = data.places[0]['state abbreviation'];
+
+      // Fill in the location field with resolved city, state
+      const input = document.getElementById('heroLocation');
+      input.value = `${city}, ${state}`;
+
+      // Auto-select the state dropdown
+      const stateSelect = document.getElementById('heroState');
+      stateSelect.value = state;
+
+      showZipSpinner(false);
+      showZipCheck(true);
+      setTimeout(() => showZipCheck(false), 2500);
+
+    } catch (err) {
+      showZipSpinner(false);
+      // Invalid ZIP — leave input as-is, user can correct it
+    }
+  }
+
+  /* Hamburger */
+  document.getElementById('hamburger').addEventListener('click', () => {
+    const nav = document.querySelector('.nav-links');
+    nav.style.display = nav.style.display === 'flex' ? 'none' : 'flex';
+    nav.style.flexDirection = 'column';
+    nav.style.position = 'absolute';
+    nav.style.top = '64px';
+    nav.style.left = '0';
+    nav.style.right = '0';
+    nav.style.background = 'var(--primary)';
+    nav.style.padding = '12px';
+    nav.style.zIndex = '999';
+  });
+</script>
+</body>
+</html>
